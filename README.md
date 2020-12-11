@@ -41,3 +41,6 @@ Built using discord.js and LeagueAPIWrapper
     - getChampionMasteryTotal()
     -Return Data
         - int
+!OP ArunanT
+    - Return link to OP.GG page
+    
