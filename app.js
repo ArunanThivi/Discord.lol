@@ -1,9 +1,11 @@
 const Discord = require('discord.js');
 const { stat } = require('fs');
+const url = require('url');
 let LeagueAPI = require('leagueapiwrapper');
 const { discordToken, leagueAPIKey } = require('./keys.json');
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
+var profiles = require('./DDragon/profileicon.json');
 LeagueAPI = new LeagueAPI(leagueAPIKey, Region.NA);
 const bot = new Discord.Client();
 
@@ -63,61 +65,71 @@ bot.on('message', message => {
             */
     }
     if (message.content.startsWith("!live")) {
-        let msg = "";
+        let e = new Discord.MessageEmbed()
+        .setTitle("Live Game for " + message.content.substring(6));
         LeagueAPI.getSummonerByName(message.content.substring(6))
         .then(function (account) {
             LeagueAPI.getActiveGames(account)
                 .then(function (match) {
-                    msg += "QUEUE: " + queues.find(element => element.queueId == match.gameQueueConfigId).description + "\n";
+                    e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description);
                     for (p of match.participants) {
-                        msg += p.summonerName + " " + Object.entries(champions.data).find(element => element[1].key == p.championId)[1].name + "\n";
+                        e.addField(p.summonerName, Object.entries(champions.data).find(element => element[1].key == p.championId)[1].name);
                     }
-                    msg += "\n";
-                    message.channel.send(`${msg}`);
+                    message.channel.send(e);
                 })
                 .catch(console.log);
         })
         .catch(console.log);
     }
     if (message.content.startsWith("!recent")) {
-        let msg = "";
+        let e = new Discord.MessageEmbed()
+        .setTitle("Latest Game stats");
         LeagueAPI.getSummonerByName(message.content.substring(8))
             .then(function (account) {
+                let pfpURL = profiles.data[account.profileIconId].image.full;
+                let attachment = new Discord.MessageAttachment(`./DDragon/img/profileicon/${pfpURL}`, "Profile.png");
+                e.attachFiles(attachment);
+                e.setAuthor(message.content.substring(8), 'attachment://Profile.png', `https://op.gg/summoner/userName=${message.content.substring(8)}`);
                 LeagueAPI.getMatchList(account.accountId)
                     .then(function (MatchList) {
                         LeagueAPI.getMatch(MatchList.matches[0].gameId)
                             .then(function (match) {
                                 let stats = '';
                                 let champ = '';
+                                let champName = '';
+                                let champPic = '';
                                 for (p of match.participantIdentities) {
                                     if (p.player.accountId == account.accountId) {
-                                        msg += (match.teams[(match.participants[p.participantId - 1].teamId) / 100 - 1].win == "Win" ? "VICTORY" : "DEFEAT") + "\n";
+                                        e.addField("Result", (match.teams[(match.participants[p.participantId - 1].teamId) / 100 - 1].win == "Win" ? "VICTORY" : "DEFEAT"));
                                         stats = match.participants[p.participantId - 1].stats;
-                                        champ = Object.entries(champions.data).find(element => element[1].key == match.participants[p.participantId - 1].championId)[1].name + " ";;
+                                        champ = Object.entries(champions.data).find(element => element[1].key == match.participants[p.participantId - 1].championId)[1];
+                                        champName = champ.name;
+                                        champPic = champ.image.full;
                                         break;
                                     }
                                 }
-                                msg += champ + "\n";
-                                msg += "Level " + stats.champLevel + "\n";
-                                msg += stats.kills + "/" + stats.deaths + "/" + stats.assists + "\n";
-                                msg += "KDA: " + Math.round(((stats.kills + stats.assists) / stats.deaths) * 100) / 100 + ":1" + "\n";
-                                msg += "Largest Multikill: " + stats.largestMultiKill + "\n";
-                                msg += "Total Damage Done: " + stats.totalDamageDealt + "\n";
-                                msg += "Total Damage Done to Champions: " + stats.totalDamageDealtToChampions + "\n";
-                                msg += "Total Damage Taken: " + stats.totalDamageTaken + "\n";
-                                msg += "Vision Score: " + stats.visionScore + "\n";
-                                msg += "Creep Score: " + (stats.totalMinionsKilled + stats.neutralMinionsKilled) + "\n";
-                                if (stats.firstBloodKill) { msg += "FIRST BLOOD" + "\n"; }
-                                if (stats.firstBloodAssist) { msg += "FIRST BLOOD (Assist)" + "\n"; }
-                                if (stats.firstTowerKill) { msg += "FIRST TOWER" + "\n"; }
-                                if (stats.firstTowerAssist) { msg += "FIRST TOWER (Assist)" + "\n"; }
-                                message.channel.send(`${msg}`);
+                                e.addField("Champion", champName, true);
+                                attachment = new Discord.MessageAttachment(`./DDragon/img/champion/${champPic}`, "champ.png");
+                                e.attachFiles(attachment);
+                                e.setThumbnail(`attachment://champ.png`);=
+                                e.addFields(
+                                    {name: "Level", value: stats.champLevel},
+                                    {name: "KDA", value: stats.kills + "/" + stats.deaths + "/" + stats.assists},
+                                    {name: "Largest Multikill", value: stats.largestMultiKill},
+                                    {name: "Total Damage Done", value: stats.totalDamageDealt, inline: true},
+                                    {name: "Total Damage Done to Champions", value: stats.totalDamageDealtToChampions, inline: true},
+                                    {name: "Total Damage Taken", value: stats.totalDamageTaken, inline: true},
+                                    {name: "Creep Score", value: (stats.totalMinionsKilled + stats.neutralMinionsKilled)},
+                                    {name: "Vision Score", value: stats.visionScore, inline: true},
+                                )
+
+                                message.channel.send(e);
                             })
-                            .catch(function () { console.log });
+                            .catch(console.log);
                     })
-                    .catch(function () { console.log });
+                    .catch(console.log);
             })
-            .catch(function () { console.log("Summoner not found!") });
+            .catch(console.log);
     }
     if (message.content.startsWith("!OP")) {
         message.channel.send(`https://op.gg/summoner/userName=${message.content.substring(4)}`);
@@ -126,8 +138,5 @@ bot.on('message', message => {
 
 bot.login(discordToken);
 
-
-function live(summonerName) {
-    
-}
+console.log();
 
