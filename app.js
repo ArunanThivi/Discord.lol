@@ -59,7 +59,7 @@ async function live(name) {
         let team1 = '';
         let team2 = '';
         let champPic = '';
-        if (element.queueId == 0) {
+        if (match.gameQueueConfigId == 0) {
             e.addField("QUEUE", "Custom Match", true);
         } else{
             e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
@@ -157,7 +157,7 @@ async function record(name, page = 0) {
             let team1 = '';
             let team2 = '';
             //Define Type of Queue
-            if (element.queueId == 0) {
+            if (match.gameQueueConfigId == 0) {
                 e.addField("QUEUE", "Custom Match", true);
             } else{
                 e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
