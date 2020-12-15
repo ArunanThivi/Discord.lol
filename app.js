@@ -1,11 +1,9 @@
 const Discord = require('discord.js');
 let LeagueAPI = require('leagueapiwrapper');
-const  discordToken = process.env.DISCORD_KEY;
-const leagueAPIKey  = process.env.RIOT_API_KEY;
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
 var profiles = require('./DDragon/profileicon.json');
-LeagueAPI = new LeagueAPI(leagueAPIKey, Region.NA);
+LeagueAPI = new LeagueAPI(process.env.RIOT_API_KEY, Region.NA);
 const bot = new Discord.Client();
 
 bot.once('ready', () => {
@@ -202,4 +200,4 @@ async function record(name, page = 0) {
 
 }
 
-bot.login(discordToken);
+bot.login(process.env.DISCORD_KEY);
