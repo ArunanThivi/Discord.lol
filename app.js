@@ -146,12 +146,12 @@ async function record(name, page = 0) {
             let team1 = '';
             let team2 = '';
             //Define Type of Queue
-            if (match.gameQueueConfigId == 0) {
+            if (match.queueId == 0) {
                 e.addField("QUEUE", "Custom Match", true);
-            } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+            } else if (queues.find(element => element.queueId == match.queueId) == undefined) {
                 e.addField("QUEUE", "Special Mode", true);
             } else{
-                e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
+                e.addField("QUEUE", queues.find(element => element.queueId == match.queueId).description, true);
             }
             //Define Time that Game Started
             e.addField("Time", new Date(match.gameCreation).toLocaleString(), true);
