@@ -58,6 +58,8 @@ async function live(name) {
         let champPic = '';
         if (match.gameQueueConfigId == 0) {
             e.addField("QUEUE", "Custom Match", true);
+        } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+            e.addField("QUEUE", "Special Mode", true);
         } else{
             e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
         }
@@ -146,6 +148,8 @@ async function record(name, page = 0) {
             //Define Type of Queue
             if (match.gameQueueConfigId == 0) {
                 e.addField("QUEUE", "Custom Match", true);
+            } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+                e.addField("QUEUE", "Special Mode", true);
             } else{
                 e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
             }
