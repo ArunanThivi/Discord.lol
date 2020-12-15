@@ -47,11 +47,12 @@ bot.on('message', message => {
 });
 
 async function live(name) {
-    let e = new Discord.MessageEmbed()
-        .setTitle(`Live Game for ${name}`);
+    let e = new Discord.MessageEmbed();
+        
     try {
         let account = await LeagueAPI.getSummonerByName(name);
-        e.setAuthor(name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        e.setTitle(`Live Game for ${account.name}`);
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
         let match = await LeagueAPI.getActiveGames(account);
         let team1 = '';
         let team2 = '';
@@ -90,7 +91,8 @@ async function recent(name) {
         .setTitle(`Latest Game stats for ${name}`);
     try {
         let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
-        e.setAuthor(name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        e.setTitle(`Latest Game stats for ${account.name}`);
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
         let MatchList = await LeagueAPI.getMatchList(account.accountId).catch(e => { console.log(e) })
         let match = await LeagueAPI.getMatch(MatchList.matches[0].gameId).catch(e => { console.log(e) });
         let stats = '';
@@ -134,11 +136,11 @@ async function recent(name) {
 }
 
 async function record(name, page = 0) {
-    let e = new Discord.MessageEmbed()
-    .setTitle(`Match History for ${name}`);
+    let e = new Discord.MessageEmbed();
     try {
         let account = await LeagueAPI.getSummonerByName(name);
-        e.setAuthor(name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        e.setTitle(`Match History for ${account.name}`);
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
         e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
         let MatchList = await LeagueAPI.getMatchList(account.accountId);
         for (let j = 4 * page; j < 4 * page + 4; j++) {
