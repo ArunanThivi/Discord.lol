@@ -17,7 +17,7 @@ bot.once('ready', () => {
 bot.on('message', message => {
     if (message.content.startsWith("!record")) {
         let messageParams = message.content.split(" ");
-        let msg = messageParams.length == 3 ? record(messageParams[1], messageParams[2]) : msg = record(messageParams[1]);      
+        let msg = messageParams.length == 3 ? record(messageParams[1], messageParams[2]) : record(messageParams[1]);      
         msg.then((m) => message.channel.send(m));
 
     }
