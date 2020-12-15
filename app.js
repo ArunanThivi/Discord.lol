@@ -60,7 +60,11 @@ async function live(name) {
         let team1 = '';
         let team2 = '';
         let champPic = '';
-        e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
+        if (element.queueId == 0) {
+            e.addField("QUEUE", "Custom Match", true);
+        } else{
+            e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
+        }
         for (let i = 0; i < 5; i++) {
             team1 += match.participants[i].summonerName + " (" + Object.entries(champions.data).find(element => element[1].key == match.participants[i].championId)[1].name + ")\n";
             if (match.participants[i].summonerId == account.id) {
@@ -87,7 +91,7 @@ async function live(name) {
 
 async function recent(name) {
     let e = new Discord.MessageEmbed()
-        .setTitle("Latest Game stats");
+        .setTitle(`Latest Game stats for ${name}`);
     try {
         let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
         let pfpURL = profiles.data[account.profileIconId].image.full;
@@ -139,7 +143,8 @@ async function recent(name) {
 }
 
 async function record(name, page = 0) {
-    let e = new Discord.MessageEmbed();
+    let e = new Discord.MessageEmbed()
+    .setTitle(`Match History for ${name}`);
     try {
         let account = await LeagueAPI.getSummonerByName(name);
         let pfpURL = profiles.data[account.profileIconId].image.full;
@@ -153,7 +158,11 @@ async function record(name, page = 0) {
             let team1 = '';
             let team2 = '';
             //Define Type of Queue
-            e.addField("QUEUE", queues.find(element => element.queueId == match.queueId).description, true);
+            if (element.queueId == 0) {
+                e.addField("QUEUE", "Custom Match", true);
+            } else{
+                e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
+            }
             //Define Time that Game Started
             e.addField("Time", new Date(match.gameCreation).toLocaleString(), true);
             //Define Members of Team 1
