@@ -21,8 +21,6 @@ bot.on('message', message => {
         if (messageParams.length == 3) {
             page = parseInt(messageParams[2]);
         }
-        console.log(page * 4);
-        console.log(page * 4 + 4);
         let e = new Discord.MessageEmbed();
         LeagueAPI.getSummonerByName(messageParams[1])
             .then(function (account) {
@@ -33,11 +31,8 @@ bot.on('message', message => {
                 e.setThumbnail('attachment://profile.png');
                 LeagueAPI.getMatchList(account.accountId)
                     .then(function (MatchList) {
-                        console.log(MatchList.totalGames);
-                        matches = MatchList.matches.sort((a, b) => a.timestamp - b.timestamp).slice(page * 4, page * 4 + 4);
-                        for (let j = 0; j < matches.length; j++) {
-                            let matchID = matches[j];
-                            LeagueAPI.getMatch(matchID.gameId)
+                        for (let j = 0; j < 5; j++) {
+                            LeagueAPI.getMatch(MatchList.matches[j].gameId)
                                 .then(function (match) {
                                     let team1 = '';
                                     let team2 = '';
@@ -68,7 +63,7 @@ bot.on('message', message => {
                                     e.addField("Blue Team", team1, true);
                                     e.addField("Red Team", team2, true);
                                     e.setFooter(`Use Command !record ${messageParams[1]} ${page + 1} to get more results`);
-                                    if (j == (matches.length - 1)) {
+                                    if (j == ((4 * page + 4) - 1)) {
                                         message.channel.send(e);
                                     }
                                 })
@@ -201,5 +196,4 @@ bot.on('message', message => {
 
 bot.login(discordToken);
 
-console.log();
 
