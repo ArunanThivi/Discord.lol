@@ -10,6 +10,7 @@ LeagueAPI = new LeagueAPI(leagueAPIKey, Region.NA);
 const bot = new Discord.Client();
 
 bot.once('ready', () => {
+    bot.user.setActivity('Use !help for Commands');
     console.log('Ready!');
 });
 
@@ -182,6 +183,19 @@ bot.on('message', message => {
     }
     if (message.content.startsWith("!OP")) {
         message.channel.send(`https://op.gg/summoner/userName=${message.content.substring(4)}`);
+    }
+    if (message.content.startsWith("!help")) {
+        let e = new Discord.MessageEmbed()
+        .setTitle("Commands for LeagueBot")
+        .addFields(
+            {name: "!record [Summoner] [page = 0]", value: "Returns Game Data on The Summoner's most recently finished matches."},
+            {name: "!live [Summoner]", value: "Returns Game Data on live match if summoner is currently in match"},
+            {name: "!recent [Summoner]", value: "Returns in-game Statistics from the Summoner's most recently completed match"},
+            {name: "!OP [Summoner]", value: "Returns a link to the Summoner's OP.GG page for further statisitcs"},
+            {name: "!help", value: "Show this page!"}
+        )
+        .setFooter("Developed by Arunan Thiviyanathan", "https://arunanthivi.com");
+        message.channel.send(e);
     }
 });
 
