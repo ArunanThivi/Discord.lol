@@ -1,6 +1,4 @@
 const Discord = require('discord.js');
-const { stat } = require('fs');
-const url = require('url');
 let LeagueAPI = require('leagueapiwrapper');
 const { discordToken, leagueAPIKey } = require('./keys.json');
 var champions = require('./DDragon/champion.json');
@@ -48,8 +46,6 @@ bot.on('message', message => {
         message.channel.send(e);
     }
 });
-
-bot.login(discordToken);
 
 async function live(name) {
     let e = new Discord.MessageEmbed()
@@ -195,3 +191,5 @@ async function record(name, page = 0) {
     }
 
 }
+
+bot.login(discordToken);
