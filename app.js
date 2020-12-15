@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
 let LeagueAPI = require('leagueapiwrapper');
-const { discordToken, leagueAPIKey } = require('./keys.json');
+const  discordToken = process.env.DISCORD_KEY;
+const leagueAPIKey  = process.env.RIOT_API_KEY;
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
 var profiles = require('./DDragon/profileicon.json');
