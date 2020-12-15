@@ -51,10 +51,7 @@ async function live(name) {
         .setTitle(`Live Game for ${name}`);
     try {
         let account = await LeagueAPI.getSummonerByName(name);
-        let pfpURL = profiles.data[account.profileIconId].image.full;
-        let attachment = new Discord.MessageAttachment(`./DDragon/img/profileicon/${pfpURL}`, "Profile.png");
-        e.attachFiles(attachment);
-        e.setAuthor(name, 'attachment://Profile.png', `https://op.gg/summoner/userName=${name}`);
+        e.setAuthor(name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
         let match = await LeagueAPI.getActiveGames(account);
         let team1 = '';
         let team2 = '';
@@ -78,9 +75,7 @@ async function live(name) {
         }
         e.addField("Blue Team", team1, true);
         e.addField("Red Team", team2, true);
-        attachment = new Discord.MessageAttachment(`./DDragon/img/champion/${champPic}`, "champ.png");
-        e.attachFiles(attachment);
-        e.setThumbnail('attachment://champ.png');
+        e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/champion/${champPic}`);
         return e;
     } catch (error) {
         console.log(error);
@@ -93,10 +88,7 @@ async function recent(name) {
         .setTitle(`Latest Game stats for ${name}`);
     try {
         let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
-        let pfpURL = profiles.data[account.profileIconId].image.full;
-        let attachment = new Discord.MessageAttachment(`./DDragon/img/profileicon/${pfpURL}`, "Profile.png");
-        e.attachFiles(attachment);
-        e.setAuthor(name, 'attachment://Profile.png', `https://op.gg/summoner/userName=${name}`);
+        e.setAuthor(name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
         let MatchList = await LeagueAPI.getMatchList(account.accountId).catch(e => { console.log(e) })
         let match = await LeagueAPI.getMatch(MatchList.matches[0].gameId).catch(e => { console.log(e) });
         let stats = '';
@@ -120,9 +112,7 @@ async function recent(name) {
             }
         }
         e.addField("Champion", champName, true);
-        attachment = new Discord.MessageAttachment(`./DDragon/img/champion/${champPic}`, "champ.png");
-        e.attachFiles(attachment);
-        e.setThumbnail(`attachment://champ.png`);
+        e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/champion/${champPic}`);
         e.addFields(
             { name: "Level", value: stats.champLevel },
             { name: "KDA", value: stats.kills + "/" + stats.deaths + "/" + stats.assists },
@@ -146,11 +136,8 @@ async function record(name, page = 0) {
     .setTitle(`Match History for ${name}`);
     try {
         let account = await LeagueAPI.getSummonerByName(name);
-        let pfpURL = profiles.data[account.profileIconId].image.full;
-        let attachment = new Discord.MessageAttachment(`./DDragon/img/profileicon/${pfpURL}`, "profile.png");
-        e.attachFiles(attachment);
-        e.setAuthor(name, 'attachment://profile.png', `https://op.gg/summoner/userName=${name}`);
-        e.setThumbnail('attachment://profile.png');
+        e.setAuthor(name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
         let MatchList = await LeagueAPI.getMatchList(account.accountId);
         for (let j = 4 * page; j < 4 * page + 4; j++) {
             let match = await LeagueAPI.getMatch(MatchList.matches[j].gameId);
