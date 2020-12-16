@@ -24,5 +24,8 @@
   "dependencies": {
     "discord.js": "^12.5.1",
     "leagueapiwrapper": "^2.1.1"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
   }
 }

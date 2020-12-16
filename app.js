@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 let LeagueAPI = require('leagueapiwrapper');
+require('dotenv').config();
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
 var profiles = require('./DDragon/profileicon.json');
@@ -12,26 +13,27 @@ bot.once('ready', () => {
 });
 
 bot.on('message', message => {
-    if (message.content.startsWith("!record")) {
+    if (message.content.toLowerCase().startsWith("!record")) {
         let messageParams = message.content.split(" ");
         let msg = messageParams.length == 3 ? record(messageParams[1], messageParams[2]) : record(messageParams[1]);      
         msg.then((m) => message.channel.send(m));
-
     }
-    if (message.content.startsWith("!live")) {
+    if (message.content.toLowerCase().startsWith("!live")) {
         let msg = live(message.content.substring(6));
         msg.then((m) => message.channel.send(m));
-
     }
-    if (message.content.startsWith("!recent")) {
+    if (message.content.toLowerCase().startsWith("!rank")) {
+        let msg = rank(message.content.substring(6));
+        msg.then((m) => message.channel.send(m));
+    }
+    if (message.content.toLowerCase().startsWith("!recent")) {
         let msg = recent(message.content.substring(8));
         msg.then((m) => message.channel.send(m));
-
     }
-    if (message.content.startsWith("!OP")) {
+    if (message.content.toLowerCase().startsWith("!op")) {
         message.channel.send(`https://op.gg/summoner/userName=${message.content.substring(4)}`);
     }
-    if (message.content.startsWith("!help")) {
+    if (message.content.toLowerCase().startsWith("!help")) {
         let e = new Discord.MessageEmbed()
             .setTitle("Commands for LeagueBot")
             .addFields(
@@ -83,6 +85,30 @@ async function live(name) {
     } catch (error) {
         console.log(error);
         return "There was an error processing your request. Summoner is most likely not currently in a match. Please try again later";
+    }
+}
+
+async function rank(name) {
+    let e = new Discord.MessageEmbed()
+        .setTitle(`Latest Game stats for ${name}`);
+    try {
+        let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
+        e.setTitle(`Summoner Information for ${account.name}`);
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
+        let rankInfo = await LeagueAPI.getLeagueRanking(account.id).catch(e => { console.log(e) });
+        let soloRank = rankInfo[0];
+        let flexRank = rankInfo[1];
+        e.addField("Rank (Solo/Duo)", soloRank.tier.toTitleCase() + " " + soloRank.rank + " (" + soloRank.leaguePoints + "LP)", true);
+        e.addField("Record (Solo/Duo)", soloRank.wins + "W " + soloRank.losses + "L", true);
+        e.addField('\u200b', '\u200b');
+        e.addField("Rank (5v5 Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
+        e.addField("Record (5v5 Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
+        console.log(rankInfo[0].miniSeries);
+        return e;
+    } catch (error) {
+        console.log(error);
+        return "There was an error processing your request. Please check the Summoner's name and try again";
     }
 }
 
@@ -192,5 +218,9 @@ async function record(name, page = 0) {
     }
 
 }
+
+String.prototype.toTitleCase = function () {
+    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+};
 
 bot.login(process.env.DISCORD_KEY);
