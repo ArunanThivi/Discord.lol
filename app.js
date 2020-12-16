@@ -97,13 +97,17 @@ async function rank(name) {
         e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
         e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
         let rankInfo = await LeagueAPI.getLeagueRanking(account.id).catch(e => { console.log(e) });
-        let soloRank = rankInfo[0];
-        let flexRank = rankInfo[1];
-        e.addField("Rank (Solo/Duo)", soloRank.tier.toTitleCase() + " " + soloRank.rank + " (" + soloRank.leaguePoints + "LP)", true);
-        e.addField("Record (Solo/Duo)", soloRank.wins + "W " + soloRank.losses + "L", true);
-        e.addField('\u200b', '\u200b');
-        e.addField("Rank (5v5 Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
-        e.addField("Record (5v5 Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
+        let soloRank = rankInfo.find(element => element.queueType === "RANKED_SOLO_5x5");
+        let flexRank = rankInfo.find(element => element.queueType === "RANKED_FLEX_SR");
+        if (soloRank != undefined) {
+            e.addField("Rank (Solo/Duo)", soloRank.tier.toTitleCase() + " " + soloRank.rank + " (" + soloRank.leaguePoints + "LP)", true);
+            e.addField("Record (Solo/Duo)", soloRank.wins + "W " + soloRank.losses + "L", true);
+            e.addField('\u200b', '\u200b');
+        }
+        if (flexRank != undefined) {
+            e.addField("Rank (Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
+            e.addField("Record (Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
+        }  
         console.log(rankInfo[0].miniSeries);
         return e;
     } catch (error) {
