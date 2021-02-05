@@ -41,8 +41,9 @@ bot.on('message', message => {
             .addFields(
                 { name: "!record [Summoner] [page = 0]", value: "Returns Game Data on The Summoner's most recently finished matches." },
                 { name: "!live [Summoner]", value: "Returns Game Data on live match if summoner is currently in match" },
+                { name: "!rank [Summoner]", value: "Returns information about this summoner's rank this season" },
                 { name: "!recent [Summoner]", value: "Returns in-game Statistics from the Summoner's most recently completed match" },
-                { name: "!OP [Summoner]", value: "Returns a link to the Summoner's OP.GG page for further statisitcs" },
+                { name: "!OP [Summoner]", value: "Returns a link to the Summoner's OP.GG page for further statistics" },
                 { name: "!help", value: "Show this page!" }
             )
             .setFooter("Developed by Arunan Thiviyanathan", "https://arunanthivi.com");
@@ -128,19 +129,19 @@ async function rank(name) {
         let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
         e.setTitle(`Summoner Information for ${account.name}`);
         e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
-        //e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
+        e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
         let rankInfo = await LeagueAPI.getLeagueRanking(account.id).catch(e => { console.log(e) });
         let soloRank = rankInfo.find(element => element.queueType === "RANKED_SOLO_5x5");
         let flexRank = rankInfo.find(element => element.queueType === "RANKED_FLEX_SR");
         if (soloRank != undefined) {
             e.addField("Rank (Solo/Duo)", soloRank.tier.toTitleCase() + " " + soloRank.rank + " (" + soloRank.leaguePoints + "LP)", true);
             e.addField("Record (Solo/Duo)", soloRank.wins + "W " + soloRank.losses + "L", true);
-            e.addField('Win Percentage', soloRank.wins / (soloRank.wins + soloRank.losses));
+            e.addField('Win %', soloRank.wins / (soloRank.wins + soloRank.losses));
         }
         if (flexRank != undefined) {
             e.addField("Rank (Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
             e.addField("Record (Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
-            e.addField('Win Percentage', flexRank.wins / (flexRank.wins + flexRank.losses));
+            e.addField('Win %', flexRank.wins / (flexRank.wins + flexRank.losses));
         }
         console.log(rankInfo[0].miniSeries);
         return e;
