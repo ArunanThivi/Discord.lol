@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 let LeagueAPI = require('leagueapiwrapper');
-require('dotenv').config(); //Uncomment this line to run locally with dotenv package
+//require('dotenv').config(); //Uncomment this line to run locally with dotenv package
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
 var profiles = require('./DDragon/profileicon.json');
