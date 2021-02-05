@@ -95,10 +95,13 @@ async function live(name) {
         let champPic = '';
         if (match.gameQueueConfigId == 0) {
             e.addField("QUEUE", "Custom Match", true);
-        } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
-            e.addField("QUEUE", "Special Mode", true);
         } else {
-            e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
+            let queueIDNum = queues.find(element => element.queueId == match.gameQueueConfigId);
+            if (queueIDNum == undefined) {
+                e.addField("QUEUE", "Special Mode", true);
+            } else {
+                e.addField("QUEUE", queueIDNum.description, true);
+            }
         }
         for (let i = 0; i < 5; i++) {
             team1 += match.participants[i].summonerName + " (" + Object.entries(champions.data).find(element => element[1].key == match.participants[i].championId)[1].name + ")\n";
@@ -166,6 +169,16 @@ async function recent(name) {
         let champ = '';
         let champName = '';
         let champPic = '';
+        if (match.gameQueueConfigId == 0) {
+            e.addField("QUEUE", "Custom Match", true);
+        } else {
+            let queueIDNum = queues.find(element => element.queueId == match.gameQueueConfigId);
+            if (queueIDNum == undefined) {
+                e.addField("QUEUE", "Special Mode", true);
+            } else {
+                e.addField("QUEUE", queueIDNum.description, true);
+            }
+        }
         for (p of match.participantIdentities) {
             if (p.player.accountId == account.accountId) {
                 if (match.teams[(match.participants[p.participantId - 1].teamId) / 100 - 1].win == "Win") {
@@ -191,7 +204,7 @@ async function recent(name) {
             { name: "Total Damage Done", value: stats.totalDamageDealt, inline: true },
             { name: "Total Damage Done to Champions", value: stats.totalDamageDealtToChampions, inline: true },
             { name: "Total Damage Taken", value: stats.totalDamageTaken, inline: true },
-            { name: "Creep Score", value: (stats.totalMinionsKilled + stats.neutralMinionsKilled) },
+            { name: "Creep Score", value: (stats.totalMinionsKilled + stats.neutralMinionsKilled), inline: true },
             { name: "Vision Score", value: stats.visionScore, inline: true },
         )
         return e;
@@ -215,12 +228,15 @@ async function record(name, page = 0) {
             let team1 = '';
             let team2 = '';
             //Define Type of Queue
-            if (match.queueId == 0) {
+            if (match.gameQueueConfigId == 0) {
                 e.addField("QUEUE", "Custom Match", true);
-            } else if (queues.find(element => element.queueId == match.queueId) == undefined) {
-                e.addField("QUEUE", "Special Mode", true);
             } else {
-                e.addField("QUEUE", queues.find(element => element.queueId == match.queueId).description, true);
+                let queueIDNum = queues.find(element => element.queueId == match.gameQueueConfigId);
+                if (queueIDNum == undefined) {
+                    e.addField("QUEUE", "Special Mode", true);
+                } else {
+                    e.addField("QUEUE", queueIDNum.description, true);
+                }
             }
             //Define Time that Game Started
             e.addField("Time", new Date(match.gameCreation).toLocaleString(), true);
