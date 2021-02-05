@@ -199,8 +199,9 @@ async function recent(name) {
         e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/11.3.1/img/champion/${champPic}`);
         e.addFields(
             { name: "Level", value: stats.champLevel },
-            { name: "KDA", value: stats.kills + "/" + stats.deaths + "/" + stats.assists },
-            { name: "Largest Multikill", value: stats.largestMultiKill },
+            { name: "KDA", value: stats.kills + "/" + stats.deaths + "/" + stats.assists, inline: true },
+            { name: "Largest Multikill", value: stats.largestMultiKill, inline: true },
+            { name: '\u200b', value: '\u200b', inline: true },
             { name: "Total Damage Done", value: stats.totalDamageDealt, inline: true },
             { name: "Total Damage Done to Champions", value: stats.totalDamageDealtToChampions, inline: true },
             { name: "Total Damage Taken", value: stats.totalDamageTaken, inline: true },
