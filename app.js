@@ -142,7 +142,7 @@ async function rank(name) {
         if (flexRank != undefined) {
             e.addField("Rank (Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
             e.addField("Record (Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
-            let flexRank = flexRank.wins / (flexRank.wins + flexRank.losses);
+            let flexPercent = flexRank.wins / (flexRank.wins + flexRank.losses);
             e.addField('Win %', (100 * flexPercent).toFixed(2), true);
         }
         console.log(rankInfo[0].miniSeries);
