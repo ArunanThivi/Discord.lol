@@ -1,7 +1,7 @@
 {
   "name": "discord.lol",
   "version": "1.0.0",
-  "description": "A Bot Client for DIM Service Discord to pull statistics relating to League of Legends from the official Riot Games API",
+  "description": "A Bot Client for DM Service Discord to pull statistics relating to League of Legends from the official Riot Games API",
   "main": "app.js",
   "scripts": {
     "test": "node app.js",

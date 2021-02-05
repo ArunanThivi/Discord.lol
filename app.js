@@ -1,21 +1,23 @@
 const Discord = require('discord.js');
 let LeagueAPI = require('leagueapiwrapper');
-//require('dotenv').config(); Uncomment this line to run locally with dotenv package
+require('dotenv').config(); //Uncomment this line to run locally with dotenv package
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
 var profiles = require('./DDragon/profileicon.json');
 LeagueAPI = new LeagueAPI(process.env.RIOT_API_KEY, Region.NA);
 const bot = new Discord.Client();
+bettingRecord = {};
+bets = [];
+claimTimer = undefined;
 
 bot.once('ready', () => {
     bot.user.setActivity('Use !help for Commands');
     console.log('Ready!');
 });
-
 bot.on('message', message => {
     if (message.content.toLowerCase().startsWith("!record")) {
         let messageParams = message.content.split(" ");
-        let msg = messageParams.length == 3 ? record(messageParams[1], messageParams[2]) : record(messageParams[1]);      
+        let msg = messageParams.length == 3 ? record(messageParams[1], messageParams[2]) : record(messageParams[1]);
         msg.then((m) => message.channel.send(m));
     }
     if (message.content.toLowerCase().startsWith("!live")) {
@@ -46,11 +48,42 @@ bot.on('message', message => {
             .setFooter("Developed by Arunan Thiviyanathan", "https://arunanthivi.com");
         message.channel.send(e);
     }
+    /*if (message.content.toLowerCase().startsWith("!bet")) {
+        let messageParams = message.content.split(" ");
+        if (messageParams.length != 3) {
+            message.channel.send("Message does not have the correct number of Parameters!");
+        } else {
+            let msg = predict(message.author, messageParams[1], messageParams[2] == 'W');
+            msg.then((m) => message.channel.send(m));
+            if (claimTimer == undefined) {
+                claimTimer = setInterval(claim, 2400000);
+            }
+        }
+    }
+    if (message.content.toLowerCase().startsWith("!claim")) {
+        if (bets.length == 0) {
+            message.channel.send("No Predictions Found, start by making a prediction!");
+        } else{
+            let msg = claim();
+            msg.then((m) => message.channel.send(m));
+        }
+    }
+    if (message.content.toLowerCase().startsWith("!leaderboard")) {
+        let e = new Discord.MessageEmbed();
+        for (user of Object.values(bettingRecord)) {
+            e.addFields(
+                { name: "Name", value: user.user, inline: true },
+                { name: "Win Loss Record", value: user.wins + '/' + user.losses, inline: true },
+                { name: "% Correct", value: (user.wins/(user.wins + user.losses)) * 100, inline: true }
+            )
+        }
+        message.channel.send(e);
+    }*/
 });
 
 async function live(name) {
     let e = new Discord.MessageEmbed();
-        
+
     try {
         let account = await LeagueAPI.getSummonerByName(name);
         e.setTitle(`Live Game for ${account.name}`);
@@ -63,7 +96,7 @@ async function live(name) {
             e.addField("QUEUE", "Custom Match", true);
         } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
             e.addField("QUEUE", "Special Mode", true);
-        } else{
+        } else {
             e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
         }
         for (let i = 0; i < 5; i++) {
@@ -107,7 +140,7 @@ async function rank(name) {
         if (flexRank != undefined) {
             e.addField("Rank (Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
             e.addField("Record (Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
-        }  
+        }
         console.log(rankInfo[0].miniSeries);
         return e;
     } catch (error) {
@@ -182,7 +215,7 @@ async function record(name, page = 0) {
                 e.addField("QUEUE", "Custom Match", true);
             } else if (queues.find(element => element.queueId == match.queueId) == undefined) {
                 e.addField("QUEUE", "Special Mode", true);
-            } else{
+            } else {
                 e.addField("QUEUE", queues.find(element => element.queueId == match.queueId).description, true);
             }
             //Define Time that Game Started
@@ -224,7 +257,66 @@ async function record(name, page = 0) {
 }
 
 String.prototype.toTitleCase = function () {
-    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    return this.replace(/\w\S*/g, function (txt) { return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(); });
 };
 
+/*async function predict(user, summoner, win) {
+    if (!bettingRecord.hasOwnProperty(user.id)) {
+        init(user);
+    }
+    try {
+        let account = await LeagueAPI.getSummonerByName(summoner);
+        let match = await LeagueAPI.getActiveGames(account);
+        if (bets.some((element) => element.gameID == match.gameId) && bets.some((element) => element.userID == user.id)) {
+            return "User has already placed a bet on this match!";
+        }
+        bets.push({ "userID": user.id, "username": user.username, "target": account.name, "win": win, "gameID": match.gameId });
+        return `${user.username} predicts that ${account.name} will ${win == true ? "win" : "lose"} this game`;
+    } catch (error) {
+        return "Summoner not found in match. Please Try again Later";
+    }
+
+}
+
+async function claim() {
+    msg = "";
+    for (bet of bets) {
+        try {
+            let match = await LeagueAPI.getMatch(bet.gameID);
+            let ID = match.participantIdentities.find(element => element.player.summonerName == bet.target).participantId;
+            if (match.teams[(match.participants[ID - 1].teamId) / 100 - 1].win == "Win") {
+                if (bet.win == true) {
+                    bettingRecord[bet.userID].wins += 1;
+                    msg += `${bet.username} was CORRECT! ${bet.target} WON their match!\n`;
+                } else {
+                    bettingRecord[bet.userID].losses += 1;
+                    msg += `${bet.username} was INCORRECT! ${bet.target} LOST their match!\n`;
+                }
+            } else {
+                if (bet.win == true) {
+                    bettingRecord[bet.userID].losses += 1;
+                    msg += `${bet.username} was INCORRECT! ${bet.target} WON their match!\n`;
+
+                } else {
+                    bettingRecord[bet.userID].wins += 1;
+                    msg += `${bet.username} was CORRECT! ${bet.target} LOST their match!\n`;
+                }
+
+            }
+            
+        } catch(error) {
+            console.log(error);
+        }
+    }
+    if (bets.length == 0) {
+        claimTimer = clearInterval(claimTimer);
+    }
+    return msg;
+}
+
+
+function init(user) {
+    bettingRecord[user.id] = { "user": user.username, "wins": 0, "losses": 0 };
+}
+*/
 bot.login(process.env.DISCORD_KEY);
