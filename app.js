@@ -128,7 +128,7 @@ async function rank(name) {
         let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
         e.setTitle(`Summoner Information for ${account.name}`);
         e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
-        e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
+        //e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/10.25.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
         let rankInfo = await LeagueAPI.getLeagueRanking(account.id).catch(e => { console.log(e) });
         let soloRank = rankInfo.find(element => element.queueType === "RANKED_SOLO_5x5");
         let flexRank = rankInfo.find(element => element.queueType === "RANKED_FLEX_SR");
