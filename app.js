@@ -136,19 +136,29 @@ async function rank(name) {
         let rankInfo = await LeagueAPI.getLeagueRanking(account.id).catch(e => { console.log(e) });
         let soloRank = rankInfo.find(element => element.queueType === "RANKED_SOLO_5x5");
         let flexRank = rankInfo.find(element => element.queueType === "RANKED_FLEX_SR");
-        if (soloRank != undefined) {
+        if (soloRank == undefined) {
+            e.addField("Rank (Solo/Duo)", "Unranked", true);
+            e.addField("Record (Solo/Duo)", "Unranked", true);
+            let soloPercent = soloRank.wins / (soloRank.wins + soloRank.losses)
+            e.addField('Win %', "--", true);
+        } else{
+            console.log(rankInfo[0].miniSeries);
             e.addField("Rank (Solo/Duo)", soloRank.tier.toTitleCase() + " " + soloRank.rank + " (" + soloRank.leaguePoints + "LP)", true);
             e.addField("Record (Solo/Duo)", soloRank.wins + "W " + soloRank.losses + "L", true);
             let soloPercent = soloRank.wins / (soloRank.wins + soloRank.losses)
             e.addField('Win %', (100 * soloPercent).toFixed(2), true);
         }
-        if (flexRank != undefined) {
+        if (flexRank == undefined) {
+            e.addField("Rank (Flex)", "Unranked", true);
+            e.addField("Record (Flex)", "Unranked", true);
+            let flexPercent = flexRank.wins / (flexRank.wins + flexRank.losses);
+            e.addField('Win %', "--", true);
+        } else {
             e.addField("Rank (Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
             e.addField("Record (Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
             let flexPercent = flexRank.wins / (flexRank.wins + flexRank.losses);
             e.addField('Win %', (100 * flexPercent).toFixed(2), true);
         }
-        console.log(rankInfo[0].miniSeries);
         return e;
     } catch (error) {
         console.log(error);
