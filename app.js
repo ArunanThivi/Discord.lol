@@ -95,13 +95,10 @@ async function live(name) {
         let champPic = '';
         if (match.gameQueueConfigId == 0) {
             e.addField("QUEUE", "Custom Match", true);
+        } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+            e.addField("QUEUE", "Special Mode", true);
         } else {
-            let queueIDNum = queues.find(element => element.queueId == match.gameQueueConfigId);
-            if (queueIDNum == undefined) {
-                e.addField("QUEUE", "Special Mode", true);
-            } else {
-                e.addField("QUEUE", queueIDNum.description, true);
-            }
+            e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
         }
         for (let i = 0; i < 5; i++) {
             team1 += match.participants[i].summonerName + " (" + Object.entries(champions.data).find(element => element[1].key == match.participants[i].championId)[1].name + ")\n";
@@ -171,13 +168,10 @@ async function recent(name) {
         let champPic = '';
         if (match.gameQueueConfigId == 0) {
             e.addField("QUEUE", "Custom Match", true);
+        } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+            e.addField("QUEUE", "Special Mode", true);
         } else {
-            let queueIDNum = queues.find(element => element.queueId == match.gameQueueConfigId);
-            if (queueIDNum == undefined) {
-                e.addField("QUEUE", "Special Mode", true);
-            } else {
-                e.addField("QUEUE", queueIDNum.description, true);
-            }
+            e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
         }
         for (p of match.participantIdentities) {
             if (p.player.accountId == account.accountId) {
@@ -231,13 +225,10 @@ async function record(name, page = 0) {
             //Define Type of Queue
             if (match.gameQueueConfigId == 0) {
                 e.addField("QUEUE", "Custom Match", true);
+            } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+                e.addField("QUEUE", "Special Mode", true);
             } else {
-                let queueIDNum = queues.find(element => element.queueId == match.gameQueueConfigId);
-                if (queueIDNum == undefined) {
-                    e.addField("QUEUE", "Special Mode", true);
-                } else {
-                    e.addField("QUEUE", queueIDNum.description, true);
-                }
+                e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
             }
             //Define Time that Game Started
             e.addField("Time", new Date(match.gameCreation).toLocaleString(), true);
