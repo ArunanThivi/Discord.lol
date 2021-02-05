@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 let LeagueAPI = require('leagueapiwrapper');
-//require('dotenv').config(); //Uncomment this line to run locally with dotenv package
+require('dotenv').config(); //Uncomment this line to run locally with dotenv package
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
 var profiles = require('./DDragon/profileicon.json');
@@ -166,12 +166,12 @@ async function recent(name) {
         let champ = '';
         let champName = '';
         let champPic = '';
-        if (match.gameQueueConfigId == 0) {
+        if (match.queueId == 0) {
             e.addField("QUEUE", "Custom Match", true);
-        } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+        } else if (queues.find(element => element.queueId == match.queueId) == undefined) {
             e.addField("QUEUE", "Special Mode", true);
         } else {
-            e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
+            e.addField("QUEUE", queues.find(element => element.queueId == match.queueId).description, true);
         }
         for (p of match.participantIdentities) {
             if (p.player.accountId == account.accountId) {
@@ -223,12 +223,12 @@ async function record(name, page = 0) {
             let team1 = '';
             let team2 = '';
             //Define Type of Queue
-            if (match.gameQueueConfigId == 0) {
+            if (match.queueId == 0) {
                 e.addField("QUEUE", "Custom Match", true);
-            } else if (queues.find(element => element.queueId == match.gameQueueConfigId) == undefined) {
+            } else if (queues.find(element => element.queueId == match.queueId) == undefined) {
                 e.addField("QUEUE", "Special Mode", true);
             } else {
-                e.addField("QUEUE", queues.find(element => element.queueId == match.gameQueueConfigId).description, true);
+                e.addField("QUEUE", queues.find(element => element.queueId == match.queueId).description, true);
             }
             //Define Time that Game Started
             e.addField("Time", new Date(match.gameCreation).toLocaleString(), true);
