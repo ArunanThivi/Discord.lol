@@ -135,11 +135,12 @@ async function rank(name) {
         if (soloRank != undefined) {
             e.addField("Rank (Solo/Duo)", soloRank.tier.toTitleCase() + " " + soloRank.rank + " (" + soloRank.leaguePoints + "LP)", true);
             e.addField("Record (Solo/Duo)", soloRank.wins + "W " + soloRank.losses + "L", true);
-            e.addField('\u200b', '\u200b');
+            e.addField('Win Percentage', soloRank.wins / soloRank.wins + soloRank.losses);
         }
         if (flexRank != undefined) {
             e.addField("Rank (Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
             e.addField("Record (Flex)", flexRank.wins + "W " + flexRank.losses + "L", true);
+            e.addField('Win Percentage', flexRank.wins / flexRank.wins + flexRank.losses);
         }
         console.log(rankInfo[0].miniSeries);
         return e;
