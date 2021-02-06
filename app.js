@@ -293,7 +293,7 @@ async function record(name, page = 0) {
             e.addField("Blue Team", team1, true); //Add Teams to the Embed
             e.addField("Red Team", team2, true);
         }
-        e.setFooter(`Use Command !record ${name} ${page + 1} to get more results`);
+        e.setFooter(`Use Command !record ${name} ${parseInt(page) + 1} to get more results`);
         return e; //Send to Channel
     } catch (error) {
         console.log(error);
