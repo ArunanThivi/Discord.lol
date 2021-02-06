@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 let LeagueAPI = require('leagueapiwrapper');
-//require('dotenv').config(); //Uncomment this line to run locally with dotenv package
+require('dotenv').config(); //Uncomment this line to run locally with dotenv package
 var champions = require('./DDragon/champion.json');
 var queues = require('./DDragon/queues.json');
 var profiles = require('./DDragon/profileicon.json');
@@ -11,31 +11,45 @@ bets = [];
 claimTimer = undefined;
 
 bot.once('ready', () => {
-    bot.user.setActivity('Use !help for Commands');
+    bot.user.setActivity('Use |help for Commands');
     console.log('Ready!');
 });
 bot.on('message', message => {
-    if (message.content.toLowerCase().startsWith("!record")) {
-        let messageParams = message.content.split(" ");
-        let msg = messageParams.length == 3 ? record(messageParams[1], messageParams[2]) : record(messageParams[1]);
+    if (message.content.toLowerCase().startsWith("|record")) {
+        let messageParams = message.content.split(" ");        
+        let username = '';
+        let msg = '';
+        if (!isNaN(messageParams[messageParams.length - 1])) {
+            for (let i = 1; i < messageParams.length - 1; i++) {
+                username += messageParams[i];
+            }
+            msg = record(username, messageParams[messageParams.length - 1])
+        } else {
+            for (let i = 1; i < messageParams.length; i++) {
+                username += messageParams[i];
+            }
+            msg = record(username);
+        }
+        //let msg = messageParams.length == 3 ?  : 
         msg.then((m) => message.channel.send(m));
     }
-    if (message.content.toLowerCase().startsWith("!live")) {
+    if (message.content.toLowerCase().startsWith("|live")) {
         let msg = live(message.content.substring(6));
         msg.then((m) => message.channel.send(m));
     }
-    if (message.content.toLowerCase().startsWith("!rank")) {
+    if (message.content.toLowerCase().startsWith("|rank")) {
         let msg = rank(message.content.substring(6));
         msg.then((m) => message.channel.send(m));
     }
-    if (message.content.toLowerCase().startsWith("!recent")) {
+    if (message.content.toLowerCase().startsWith("|recent")) {
         let msg = recent(message.content.substring(8));
         msg.then((m) => message.channel.send(m));
     }
-    if (message.content.toLowerCase().startsWith("!op")) {
-        message.channel.send(`https://op.gg/summoner/userName=${message.content.substring(4)}`);
+    if (message.content.toLowerCase().startsWith("|op")) {
+        let username = message.content.substring(4).replace(/\s/g, '+');
+        message.channel.send(`https://op.gg/summoner/userName=${username}`);
     }
-    if (message.content.toLowerCase().startsWith("!help")) {
+    if (message.content.toLowerCase().startsWith("|help")) {
         let e = new Discord.MessageEmbed()
             .setTitle("Commands for LeagueBot")
             .addFields(
@@ -88,7 +102,7 @@ async function live(name) {
     try {
         let account = await LeagueAPI.getSummonerByName(name);
         e.setTitle(`Live Game for ${account.name}`);
-        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name.replace(/\s/g, '+')}`);
         let match = await LeagueAPI.getActiveGames(account);
         let team1 = '';
         let team2 = '';
@@ -131,7 +145,8 @@ async function rank(name) {
     try {
         let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
         e.setTitle(`Summoner Information for ${account.name}`);
-        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        let opUsername = name.replace(/\s/g, '+');
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${opUsername}`);
         e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
         let rankInfo = await LeagueAPI.getLeagueRanking(account.id).catch(e => { console.log(e) });
         let soloRank = rankInfo.find(element => element.queueType === "RANKED_SOLO_5x5");
@@ -139,7 +154,6 @@ async function rank(name) {
         if (soloRank == undefined) {
             e.addField("Rank (Solo/Duo)", "Unranked", true);
             e.addField("Record (Solo/Duo)", "Unranked", true);
-            let soloPercent = soloRank.wins / (soloRank.wins + soloRank.losses)
             e.addField('Win %', "--", true);
         } else{
             console.log(rankInfo[0].miniSeries);
@@ -151,7 +165,6 @@ async function rank(name) {
         if (flexRank == undefined) {
             e.addField("Rank (Flex)", "Unranked", true);
             e.addField("Record (Flex)", "Unranked", true);
-            let flexPercent = flexRank.wins / (flexRank.wins + flexRank.losses);
             e.addField('Win %', "--", true);
         } else {
             e.addField("Rank (Flex)", flexRank.tier.toTitleCase() + " " + flexRank.rank + " (" + flexRank.leaguePoints + "LP)", true);
@@ -172,7 +185,8 @@ async function recent(name) {
     try {
         let account = await LeagueAPI.getSummonerByName(name).catch(e => { console.log(e) });
         e.setTitle(`Latest Game stats for ${account.name}`);
-        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        let opUsername = name.replace(/\s/g, '+');
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${opUsername}`);
         let MatchList = await LeagueAPI.getMatchList(account.accountId).catch(e => { console.log(e) })
         let match = await LeagueAPI.getMatch(MatchList.matches[0].gameId).catch(e => { console.log(e) });
         let stats = '';
@@ -231,7 +245,8 @@ async function record(name, page = 0) {
     try {
         let account = await LeagueAPI.getSummonerByName(name);
         e.setTitle(`Match History for ${account.name}`);
-        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${name}`);
+        let opUsername = name.replace(/\s/g, '+');
+        e.setAuthor(account.name, `http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`, `https://op.gg/summoner/userName=${opUsername}`);
         e.setThumbnail(`http://ddragon.leagueoflegends.com/cdn/11.3.1/img/profileicon/${profiles.data[account.profileIconId].image.full}`);
         let MatchList = await LeagueAPI.getMatchList(account.accountId);
         for (let j = 4 * page; j < 4 * page + 4; j++) {
